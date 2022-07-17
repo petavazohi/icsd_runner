@@ -1,39 +1,37 @@
-from selenium import webdriver
-from selenium.webdriver.support.ui import Select
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
 import json
-import shutil
 import os
-from pathlib import Path
+import shutil
 import time
+from pathlib import Path
+
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import Select, WebDriverWait
+from webdriver_manager.chrome import ChromeDriverManager
 
 chrome_options = webdriver.ChromeOptions()
 chrome_options.add_experimental_option('useAutomationExtension', False)
-path_to_binary = Path(
-    "C:/Users/Pedram/Documents/chromedriver_win32/chromedriver.exe")
-
-# path_to_binary = Path("C:/Users/ptava/OneDrive/Documents/chromedriver_win32/chromedriver.exe")
-driver = webdriver.Chrome(path_to_binary.as_posix(), options=chrome_options)
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
 driver.get('https://icsd.fiz-karlsruhe.de/index.xhtml')
 
 
 def clear_query():
-    time.sleep(2) 
+    time.sleep(2)
     driver.find_element(By.NAME, "content_form:btnClearQuery").click()
 
 
 def run_query():
-    time.sleep(2) 
+    time.sleep(2)
     button = driver.find_element(By.XPATH,
-        '//*[@id="content_form:btnRunQuery"]')
+                                 '//*[@id="content_form:btnRunQuery"]')
     button.click()
 
 
 def login(user, password):
-    time.sleep(2) 
+    time.sleep(2)
     id_box = driver.find_element(By.NAME, 'content_form:loginId')
     pass_box = driver.find_element(By.NAME, 'content_form:password')
     # Send login information
@@ -41,68 +39,91 @@ def login(user, password):
     pass_box.send_keys(password)
     # Click login
     driver.find_element(By.NAME, 'content_form:loginButtonPersonal').click()
-    driver.find_element(By.XPATH,
+    driver.find_element(
+        By.XPATH,
         '//*[@id="content_form:uiSelectContent"]/tbody/tr[2]/td/div').click()
 
 
 def logout():
-    time.sleep(2) 
+    time.sleep(2)
     driver.find_element(By.XPATH,
-        '//*[@id="header_form:logoutLink"]/span').click()
+                        '//*[@id="header_form:logoutLink"]/span').click()
 
 
 def enter_icsd(_id):
-    time.sleep(2) 
-    icsd_code_form = driver.find_element(By.ID,
+    time.sleep(2)
+    icsd_code_form = driver.find_element(
+        By.ID,
         "content_form:uiCodeCollection:input:componentInputPanel")
     icsd_code_form.click()
     action = webdriver.ActionChains(driver)
-    action.key_down(Keys.CONTROL).send_keys_to_element(
-        icsd_code_form, "a").key_up(Keys.CONTROL).send_keys_to_element(
-            icsd_code_form, Keys.DELETE).send_keys_to_element(icsd_code_form, _id).perform()
+    action.key_down(
+        Keys.CONTROL
+        ).send_keys_to_element(
+            icsd_code_form, "a"
+            ).key_up(Keys.CONTROL).send_keys_to_element(
+                icsd_code_form, Keys.DELETE
+                ).send_keys_to_element(icsd_code_form, _id).perform()
 
 
 def check_uncheck_theory():
     # check in theoroitical
-    time.sleep(2) 
-    driver.find_element(By.XPATH,
-        '//*[@id="content_form:uiSelectContent"]/tbody/tr[3]/td/div/div[2]').click()
+    time.sleep(2)
+    driver.find_element(
+        By.XPATH,
+        '//*[@id="content_form:uiSelectContent"]/tbody/tr[3]/td/div/div[2]'
+        ).click()
 
 
 def select_all():
-    time.sleep(2) 
-    driver.find_element(By.XPATH,
-            '//*[@id="display_form:listViewTable:uiSelectAllRows"]/div[2]/span').click()
+    time.sleep(2)
+    driver.find_element(
+        By.XPATH,
+        '//*[@id="display_form:listViewTable:uiSelectAllRows"]/div[2]/span'
+        ).click()
+
 
 def export_data(name, mode):
-    time.sleep(1) 
-    driver.find_element(By.XPATH,
-            '//*[@id="display_form:btnExportData"]/span[2]').click()
+    time.sleep(1)
+    driver.find_element(
+        By.XPATH,
+        '//*[@id="display_form:btnExportData"]/span[2]').click()
     time.sleep(1)
     export_name = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.ID, "display_form:expName")))
     webdriver.ActionChains(driver).key_down(
-        Keys.SHIFT).send_keys_to_element(
-            export_name, Keys.END).send_keys_to_element(
-                export_name, Keys.DELETE).key_up(Keys.SHIFT).send_keys_to_element(export_name, f"{name}_{mode}").perform()
-    select = Select(driver.find_element(By.XPATH, 
+        Keys.SHIFT
+        ).send_keys_to_element(
+            export_name, Keys.END
+            ).send_keys_to_element(
+                export_name, Keys.DELETE
+                ).key_up(
+                    Keys.SHIFT
+                    ).send_keys_to_element(
+                        export_name, f"{name}_{mode}"
+                        ).perform()
+    select = Select(driver.find_element(
+        By.XPATH,
         '//*[@id="display_form:expCelltype:input_input"]'))
     select.select_by_visible_text(mode)
     export_button = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="display_form:j_idt284"]')))
+        EC.element_to_be_clickable(
+            (By.XPATH, '//*[@id="display_form:j_idt284"]')))
     export_button.click()
-    driver.find_element(By.XPATH,
+    driver.find_element(
+        By.XPATH,
         '//*[@id="display_form:expData"]/div[1]/a/span').click()
-    
+
+
 def back_to_query():
-    driver.find_element(By.XPATH,
+    driver.find_element(
+        By.XPATH,
         '//*[@id="display_form:btnBackToQuery"]/span[2]').click()
 
-    
-    
+
 with open("icsd_mp_id.json", 'r') as rf:
     data = json.load(rf)
-    
+
 errors = {}
 
 # if you want to only download from this list
@@ -119,7 +140,9 @@ errors = {}
 my_list = list(data.keys())
 icsd_download_path = "G:/My Drive/_projects/PBEvsPBEsol/icsd/icsd_downloads"
 chrome_download_path = 'C:/Users/Pedram/Downloads'
-driver.find_element(By.XPATH, '//*[@id="cookie-notice"]/div/table/tbody/tr[2]/td[2]/a[2]').click()
+driver.find_element(
+    By.XPATH, 
+    '//*[@id="cookie-notice"]/div/table/tbody/tr[2]/td[2]/a[2]').click()
 with open('.login', 'r') as rf:
     username = rf.read()
     password = rf.read()
@@ -154,7 +177,7 @@ for i, mp_id in enumerate(data):
             # export_data(name, "experimental")
             export_data(name, "standardized")
             back_to_query()
-            found_one=True
+            found_one = True
 
         except:
             errors[mp_id].append(icsd_id)
@@ -182,8 +205,8 @@ for i, mp_id in enumerate(data):
             dst_path = Path.joinpath(path, f"{name}_{fname}_{icsd_id}")
             if os.path.exists(src_path.as_posix()):
                 shutil.unpack_archive(src_path, dst_path)
-            else :
+            else:
                 errors[mp_id].append(icsd_id)
 logout()
-with open('errors.json','w') as wf:
+with open('errors.json', 'w') as wf:
     json.dump(errors, wf, indent=True)
