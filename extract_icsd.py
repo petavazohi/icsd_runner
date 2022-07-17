@@ -144,8 +144,8 @@ driver.find_element(
     By.XPATH, 
     '//*[@id="cookie-notice"]/div/table/tbody/tr[2]/td[2]/a[2]').click()
 with open('.login', 'r') as rf:
-    username = rf.read()
-    password = rf.read()
+    username = rf.readline()
+    password = rf.readline()
 login(username, password)
 for i, mp_id in enumerate(data):
     if mp_id not in my_list:
